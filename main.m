@@ -4,22 +4,32 @@ clear all
 %% Fix the road
 
 % Input of the code
-center_lat = 48.858336; % Center of the search
-center_lng = 2.342377; % Center of the search
-types='subway_station'; % Type of search
-radius = '1500'; % Radius of the search.
+% center_lat = 48.858336; % Center of the search
+% center_lng = 2.342377; % Center of the search
+% types='subway_station'; % Type of search
+% radius = '1500'; % Radius of the search.
+% 
+% [input] = input(center_lat,center_lng,types,radius);
+%   
+% [Path,Points,Polyline_step] = main_direction(input);
+%
+% save('Distance_input','input','Path','Points','Polyline_step');
 
-[input] = input(center_lat,center_lng,types,radius);
-  
-[Path,Points,Polyline_step] = main_direction(input);
+%% Round the coordinates
 
-save('Distance_input','input','Path','Points','Polyline_step');
-clear all
-clc
+% format long g
+% 
+% Path = round(Path*10^5)/10^5;
+% Points = round(Points*10^5)/10^5;
+% Polyline_step = round(Polyline_step*10^5)/10^5;
+% 
+% save('Distance_input4','input','Path','Points','Polyline_step');
+% clear all
+% clc
 
 %% Plot the graph
 
-load('Distance_input');
+load('Distance_input4');
 
  figure(1)
  
