@@ -13,7 +13,7 @@ radius = '1500'; % Radius of the search.
   
 [Path,Points,Polyline_step] = main_direction(input);
 
-save('Distance_input','input','Path','Points');
+save('Distance_input','input','Path','Points','Polyline_step');
 clear all
 clc
 

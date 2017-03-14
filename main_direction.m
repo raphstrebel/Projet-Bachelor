@@ -1,9 +1,9 @@
 function [Path,Points,Polyline_step] = main_direction(input)
 
 Points=[];
-z=0;
 Path =[];
-w=0;
+Polyline_step = [];
+z=0;
 
 for i = 1 : size(input,1)
     
