@@ -1,8 +1,8 @@
 function [Dist, Durs,Speed] = Duration(latlong)
 
-dist = zeros(size(latlong,1)-1,1); % initialization dist: matrix 0, size number of distance to calculate
-durs = zeros(size(latlong,1)-1,1);
-speed = zeros(size(latlong,1)-1,1);% initialization durs: matrix 0, size number of distance to calculate
+%dist = zeros(size(latlong,1)-1,1); % initialization dist: matrix 0, size number of distance to calculate
+%durs = zeros(size(latlong,1)-1,1);
+%speed = zeros(size(latlong,1)-1,1);% initialization durs: matrix 0, size number of distance to calculate
 Dist=[];
 Durs=[];
 Speed = [];

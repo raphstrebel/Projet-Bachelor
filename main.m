@@ -206,31 +206,43 @@ clear all
 
 %% Create graph
 
-load('Graph')
-load('Distance_input_round5')
+% load('Graph')
+% load('Distance_input_round5')
+% 
+% graph = digraph(AM);
+% Nodes_Reseau = [Nodes_Reseau(:,2) Nodes_Reseau(:,1)];
+% 
+% graph.Nodes.Long = Nodes_Reseau(:,1);
+% graph.Nodes.Lat = Nodes_Reseau(:,2);
+% 
+% weak_bins = conncomp(graph,'Type','weak')
+% G = rmnode(graph,find(weak_bins~=1))
+ 
+% save('Graph','Nodes','Nodes_Perimeter','Nodes_Reseau','AM','graph','G');
+%% Calculate Speed
 
-graph = digraph(AM);
-Nodes_Reseau = [Nodes_Reseau(:,2) Nodes_Reseau(:,1)];
+% load('Graph')
+% load('Distance_input_round5')
+% 
+% for i = 1:size(G.Edges.EndNodes,1)
+% i
+% Lat1 = Nodes_Reseau(G.Edges.EndNodes(i,1),2);
+% Lng1 = Nodes_Reseau(G.Edges.EndNodes(i,1),1);
+% Lat2 = Nodes_Reseau(G.Edges.EndNodes(i,2),2);
+% Lng2 = Nodes_Reseau(G.Edges.EndNodes(i,2),1);
+% 
+% [Dist,Durs,Speed] = main_distance(Lat1,Lng1,Lat2,Lng2);
+% 
+% G.Edges.Weight(i)=Speed;
+% 
+% end
+% 
+% save('Graph','Nodes','Nodes_Perimeter','Nodes_Reseau','AM','graph','G');
 
-graph.Nodes.Long = Nodes_Reseau(:,1);
-graph.Nodes.Lat = Nodes_Reseau(:,2);
-
-% plot(graph,'XData',graph.Nodes.Long,'YData',graph.Nodes.Lat)
-% plot_google_map
-% ylabel({'$\phi$ [degrees]'},'interpreter','latex','FontSize',15)
-% xlabel({'$\lambda$ [degrees]'},'interpreter','latex','FontSize',15)
-% hold off
-
-weak_bins = conncomp(graph,'Type','weak')
-G = rmnode(graph,find(weak_bins~=1))
+%% Plot Graph
 
 plot(G,'XData',G.Nodes.Long,'YData',G.Nodes.Lat)
 plot_google_map
 ylabel({'$\phi$ [degrees]'},'interpreter','latex','FontSize',15)
 xlabel({'$\lambda$ [degrees]'},'interpreter','latex','FontSize',15)
 hold off
-
-save('Graph','Nodes','Nodes_Perimeter','Nodes_Reseau','AM','graph','G');
-%% Calculate Speed
-
-%[Durs2] = main_distance(Points);
