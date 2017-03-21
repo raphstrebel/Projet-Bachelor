@@ -198,8 +198,8 @@ clear all
 % 
 % end
 
-% save('Graph','Nodes','Nodes_Perimeter','Nodes_Reseau','AM');
-%% test plot  % remove
+% save('Graph','Nodes','Nodes_Perimeter','Nodes_Reseau');
+%% test plot
 
 % test = find(AM==1);
 % Nodes1 = [];
@@ -234,22 +234,18 @@ clear all
 load('Graph')
 load('Distance_input_round5')
 
-Nodes_Reseau = [Nodes_Reseau(:,2) Nodes_Reseau(:,1)];
+graph = digraph(AM);
 
-gplot(AM,Nodes_Reseau)
-plot_google_map
-ylabel({'$\phi$ [degrees]'},'interpreter','latex','FontSize',15)
-xlabel({'$\lambda$ [degrees]'},'interpreter','latex','FontSize',15)
-hold off 
-% graph = digraph(AM);
+weak_bins = conncomp(graph,'Type','weak')
+rmnode(graphfind(weak_bins1)
 
-% weak_bins = conncomp(graph,'Type','weak')
-% G = rmnode(graph,find(weak_bins~=1))
+plot(graph);
+
+
 % 
-% figure(1)
-% plot(G);
-% 
-% save('Graph','Nodes','Nodes_Perimeter','Nodes_Reseau','AM','G');
+%     graph = addedge(graph, n1, n2)
+%     graph.Edges.Time(e) = {value};
+
 %% Calculate Speed
 
-%[Durs2] = main_distance(Points);
+% [Durs2] = main_distance(Points);
