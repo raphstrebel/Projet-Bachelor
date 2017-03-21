@@ -198,58 +198,39 @@ clear all
 % 
 % end
 
+% Nodes_Reseau = [Nodes_Reseau(:,2) Nodes_Reseau(:,1)];
+
+% gplot(AM,Nodes_Reseau,'k')
+
 % save('Graph','Nodes','Nodes_Perimeter','Nodes_Reseau','AM');
-%% test plot  % remove
-
-% test = find(AM==1);
-% Nodes1 = [];
-
-% for xx = 1:length(test)
-% nodes1 = rem(test(xx),length(Nodes_Reseau));
-% N1 = Nodes_Reseau(nodes1,:);
-% nodes2 = floor(test(xx)/length(Nodes_Reseau)) + 1;
-% N2 = Nodes_Reseau(nodes2,:);
-% Way = [N1;N2]
-% plot(Way(:,2),Way(:,1),'g','linewidth',2.5)
-% hold on
-% end
-% hold on
-% for f = 1:2:(size(Path,2)-1)
-% O=Path(:,f:f+1);   
-% index=find(O(:,1));     
-% P=O(index,:);
-% plot(P(:,2),P(:,1),'xk','linewidth',1.5)
-% hold on
-% plot(Nodes_Reseau(:,2),Nodes_Reseau(:,1),'xr','linewidth',1.5)
-% hold on
-% end
-% plot_google_map
-% ylabel({'$\phi$ [degrees]'},'interpreter','latex','FontSize',15)
-% xlabel({'$\lambda$ [degrees]'},'interpreter','latex','FontSize',15)
-% hold off 
-
 
 %% Create graph
 
 load('Graph')
 load('Distance_input_round5')
 
+graph = digraph(AM);
 Nodes_Reseau = [Nodes_Reseau(:,2) Nodes_Reseau(:,1)];
 
-gplot(AM,Nodes_Reseau)
+graph.Nodes.Long = Nodes_Reseau(:,1);
+graph.Nodes.Lat = Nodes_Reseau(:,2);
+
+% plot(graph,'XData',graph.Nodes.Long,'YData',graph.Nodes.Lat)
+% plot_google_map
+% ylabel({'$\phi$ [degrees]'},'interpreter','latex','FontSize',15)
+% xlabel({'$\lambda$ [degrees]'},'interpreter','latex','FontSize',15)
+% hold off
+
+weak_bins = conncomp(graph,'Type','weak')
+G = rmnode(graph,find(weak_bins~=1))
+
+plot(G,'XData',G.Nodes.Long,'YData',G.Nodes.Lat)
 plot_google_map
 ylabel({'$\phi$ [degrees]'},'interpreter','latex','FontSize',15)
 xlabel({'$\lambda$ [degrees]'},'interpreter','latex','FontSize',15)
-hold off 
-% graph = digraph(AM);
+hold off
 
-% weak_bins = conncomp(graph,'Type','weak')
-% G = rmnode(graph,find(weak_bins~=1))
-% 
-% figure(1)
-% plot(G);
-% 
-% save('Graph','Nodes','Nodes_Perimeter','Nodes_Reseau','AM','G');
+save('Graph','Nodes','Nodes_Perimeter','Nodes_Reseau','AM','graph','G');
 %% Calculate Speed
 
 %[Durs2] = main_distance(Points);
