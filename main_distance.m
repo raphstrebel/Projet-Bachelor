@@ -1,7 +1,7 @@
 function [Dist, Durs ,Speed]=main_distance(Lat1,Lng1,Lat2,Lng2)
 
 
-format shortg 
+%format shortg 
 curtime = clock; % year month day hour minute seconds
 
 %while 1

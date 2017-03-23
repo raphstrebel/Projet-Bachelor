@@ -1,11 +1,10 @@
-function [dist, duration,speed] = Distance(lat1,lon1,lat2,lon2)
-    
-    
+function [dist, duration,speed] = Distance(lat1,lon1,lat2,lon2)  
+
 format long
 
-KEY = 'AIzaSyBqLuDTR9olgqb3qQyESsK0WONkeU6SZo8'; % API key for GeoCode
-orig_coord = [num2str(lat1) ',' num2str(lon1)]; % Origin Coordinates
-dest_coord = [num2str(lat2) ',' num2str(lon2)]; % Destination Coordinates
+KEY = 'AIzaSyAu03q9e5g6d6xqaGKaBd6PpwxVU_MP09o'; % API key for GeoCode
+orig_coord = [num2str(lat1,8) ',' num2str(lon1,8)]; % Origin Coordinates
+dest_coord = [num2str(lat2,8) ',' num2str(lon2,8)]; % Destination Coordinates
 mode='driving'; % Mode. etc. driving, walking.
 departure_time = 'now';
 url = ['https://maps.googleapis.com/maps/api/distancematrix/json?origins=',orig_coord,'&destinations=',dest_coord,'&mode=',mode,'&departure_time=', departure_time,'&language=en-EN&sensor=false&key=', KEY];
