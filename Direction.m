@@ -7,7 +7,7 @@ Lat = [];
 Lng = [];
 polyline_step = [];
 
-KEY = 'AIzaSyAfzWBGEKlAxf_jD0cKNXC0VQE3NKpRqaU'; % API key for GeoCode
+KEY = 'AIzaSyBpjU8mnzq_m7ABcT21nOdt0gkooUlS3I0'; % API key for GeoCode
 orig_coord = [num2str(coordinates(1,1)) ',' num2str(coordinates(1,2))]; % Origin Coordinates
 dest_coord = [num2str(coordinates(2,1)) ',' num2str(coordinates(2,2))]; % Destination Coordinates
 mode='driving'; % Mode. etc. driving, walking.
@@ -42,7 +42,7 @@ else
     step = sub_path(end,:);
 end
 
-polyline_step = [polyline_step;step]
+polyline_step = [polyline_step;step];
 
 end
 

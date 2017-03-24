@@ -6,7 +6,7 @@ Polyline_step = [];
 z=0;
 
 for i = 1 : size(input,1)
-    
+    i
     for j = 1 : size(input,1)
         
         if i ~= j
