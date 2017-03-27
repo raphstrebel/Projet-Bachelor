@@ -331,16 +331,59 @@ clear all
 % end
 
 %% Plot Graph
-
+clc
 load('Graph')
 
-h = plot(S(1).graph,'XData',S(1).graph.Nodes.Long,'YData',S(1).graph.Nodes.Lat,'EdgeColor','k');
+% h = plot(S(1).graph,'XData',S(1).graph.Nodes.Long,'YData',S(1).graph.Nodes.Lat,'EdgeColor','k');
+% 
+% H = reshape((S(1).graph.Edges{find(S(1).graph.Edges.Weight<3),1})',1,[]);
+% 
+% highlight(h,H,'EdgeColor','r','LineWidth',2.5)
+% 
+% plot_google_map
+% ylabel({'$\phi$ [degrees]'},'interpreter','latex','FontSize',15)
+% xlabel({'$\lambda$ [degrees]'},'interpreter','latex','FontSize',15)
+fprintf('number of nodes : %d',numnodes(graph))
 
-H = reshape((S(1).graph.Edges{find(S(1).graph.Edges.Weight<3),1})',1,[]);
+eps = 0.0050;
+x = 0;
 
-highlight(h,H,'EdgeColor','r','LineWidth',2.5)
+for i = 1:numnodes(graph)-2
+%     d1 = distance(findnode(graph, i).lat, findnode(graph, i).lng, findnode(graph, i+1).lat, findnode(graph, i+1).lng)
+%     d2 = distance(findnode(graph, i+1).lat, findnode(graph, i+1).lng, findnode(graph, i+2).lat, findnode(graph, i+2).lng)
+    
+%     lat1 = graph.Nodes{graph.Edges.EndNodes(i,1),1};
+%     lng1 = graph.Nodes{graph.Edges.EndNodes(i,1),2};
+%     lat2 = graph.Nodes{graph.Edges.EndNodes(i,2),1};
+%     lng2 = graph.Nodes{graph.Edges.EndNodes(i,2),2};
+%     lat3 = graph.Nodes{graph.Edges.EndNodes(i,3),1};
+%     lng3 = graph.Nodes{graph.Edges.EndNodes(i,3),2};
+    lat1 = graph.Nodes.Long(i);
+    lng1 = graph.Nodes.Lat(i);
+    lat2 = graph.Nodes.Long(i+1);
+    lng2 = graph.Nodes.Lat(i+1);
+    lat3 = graph.Nodes.Long(i+2);
+    lng3 = graph.Nodes.Lat(i+2);
+    
+    if(findedge(graph,i,i+1) ~= 0 && findedge(graph,i+1,i+2) ~= 0) 
+        if(abs(lat1 - lat2) < eps && abs(lat2 - lat3) < eps)
+            if(abs(lng1 - lng2) < eps && abs(lng2 - lng3) < eps)
+                graph = addedge(graph,i,i+2,1);
+                graph = rmnode(graph,i+1);
+                i = i + 2;
+            end
+        end
+    end
+end
+fprintf('number of nodes : %d',numnodes(graph))
 
-plot_google_map
+h1 = plot(S(1).graph,'XData',S(1).graph.Nodes.Long,'YData',S(1).graph.Nodes.Lat,'EdgeColor','k');
+
+H1 = reshape((S(1).graph.Edges{find(S(1).graph.Edges.Weight<3),1})',1,[]);
+
+highlight(h1,H1,'EdgeColor','r','LineWidth',2.5)
+
+% plot_google_map
 ylabel({'$\phi$ [degrees]'},'interpreter','latex','FontSize',15)
 xlabel({'$\lambda$ [degrees]'},'interpreter','latex','FontSize',15)
 hold off
