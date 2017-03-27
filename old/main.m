@@ -345,7 +345,7 @@ load('Graph')
 % xlabel({'$\lambda$ [degrees]'},'interpreter','latex','FontSize',15)
 fprintf('number of nodes : %d',numnodes(graph))
 
-eps = 0.0050;
+eps = 0.001; % à discuter, combien de difference entre long et lat de deux points on accepte
 x = 0;
 
 for i = 1:numnodes(graph)-2
@@ -360,18 +360,39 @@ for i = 1:numnodes(graph)-2
 %     lng3 = graph.Nodes{graph.Edges.EndNodes(i,3),2};
     lat1 = graph.Nodes.Long(i);
     lng1 = graph.Nodes.Lat(i);
-    lat2 = graph.Nodes.Long(i+1);
-    lng2 = graph.Nodes.Lat(i+1);
-    lat3 = graph.Nodes.Long(i+2);
-    lng3 = graph.Nodes.Lat(i+2);
     
-    if(findedge(graph,i,i+1) ~= 0 && findedge(graph,i+1,i+2) ~= 0) 
-        if(abs(lat1 - lat2) < eps && abs(lat2 - lat3) < eps)
-            if(abs(lng1 - lng2) < eps && abs(lng2 - lng3) < eps)
-                graph = addedge(graph,i,i+2,1);
-                graph = rmnode(graph,i+1);
-                i = i + 2;
+    % for all edges outgoing from i (incoming too?) successors/predecessors
+    succ = successors(graph, i);
+    
+    for j = 1:size(succ)
+        
+        n2 = succ(j);
+        lat2 = graph.Nodes.Long(n2);
+        lng2 = graph.Nodes.Lat(n2);
+        
+        nextsucc = successors(graph, n2);
+        
+        for k = 1:size(nextsucc)
+            todelete = 1;
+            n3 = nextsucc(k);
+            lat3 = graph.Nodes.Long(n3);
+            lng3 = graph.Nodes.Lat(n3);
+            
+            %if(findedge(graph,i,i+1) ~= 0 && findedge(graph,i+1,i+2) ~= 0) 
+            if(abs(lat1 - lat2) < eps && abs(lat2 - lat3) < eps)
+                if(abs(lng1 - lng2) < eps && abs(lng2 - lng3) < eps)
+%                     graph = addedge(graph,i,n2,1);
+%                     graph = rmnode(graph,n2);
+                    todelete = 0;
+                end
             end
+        end
+        
+        if(todelete == 1)
+            if(findedge(graph,i,n2) ~= 0)
+                graph = addedge(graph,i,n2,1);
+            end
+            graph = rmnode(graph,n2); 
         end
     end
 end
