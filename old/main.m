@@ -345,14 +345,22 @@ load('Graph')
 % xlabel({'$\lambda$ [degrees]'},'interpreter','latex','FontSize',15)
 
 
-eps = 0.001; % à discuter, combien de difference entre long et lat de deux points on accepte
+eps = 0.0001; % à discuter, combien de difference entre long et lat de deux points on accepte
 
-delete_nodes = {}; % On initialize la liste des noeuds à enlever
+delete_nodes = []; % On initialize la liste des noeuds enlevés
 
 %fprintf('number of nodes : %d',numnodes(graph))
 
+%plot(graph,'XData',graph.Nodes.Long,'YData',graph.Nodes.Lat)
+
+numnodes(graph)
+
 % Pour tous les noeuds dans graph
 for n1 = numnodes(graph):-1:1
+    while(ismember(n1, delete_nodes) == 1)
+       n1 = n1 + 1; 
+    end
+    
     lat1 = graph.Nodes.Long(n1);
     lng1 = graph.Nodes.Lat(n1);
     succ = successors(graph, n1);
@@ -366,20 +374,20 @@ for n1 = numnodes(graph):-1:1
             succDegreeOne = [succDegreeOne, succ(j)];
         end
     end
-    fprintf('successors of degree 1 of %d\n', n1)
-    succDegreeOne
+    %fprintf('successors of degree 1 of %d\n', n1)
+    %succDegreeOne
     % Keep only nodes of out degree 1
     for k = 1:size(succDegreeOne)
         
         n2 = succDegreeOne(k);
-        fprintf('successors of degree 1 of %d\n', n2)
+        %fprintf('successors of degree 1 of %d\n', n2)
         lat2 = graph.Nodes.Long(n2);
         lng2 = graph.Nodes.Lat(n2);
         
         % n3 is the successor of n2
         n3 = successors(graph, n2);
         
-        fprintf('successors of node 2: %d\n', n3)
+        %fprintf('successors of node 2: %d\n', n3)
         
         lat3 = graph.Nodes.Long(n3);
         lng3 = graph.Nodes.Lat(n3);
@@ -403,26 +411,29 @@ for n1 = numnodes(graph):-1:1
         else
             dist = norm(cross(a,b)) / norm(a);
         end
-        fprintf('distance ')
-        dist
+        
+        %fprintf('distance ')
+        %dist
         
         % Point 2 is at acceptable distance from line n1-n3
         if(dist < eps)
-            fprintf('distance is < to eps\n')
+            %fprintf('distance is < to eps\n')
             % If there is no edge n1->n3 we add it
-            if(findedge(graph,n1,n3) ~= 0)
-                fprintf('edge does not exist %d %d %d\n', n1, n2, n3)
+            if(findedge(graph,n1,n3) == 0)
+                %fprintf('edge does not exist %d %d %d\n', n1, n2, n3)
                 graph = addedge(graph,n1,n3,1);
             end
             
             % Delete node n2
-            fprintf('DELETE %d', n2)
-            graph = rmnode(graph, k);
+            %fprintf('DELETE %d', n2)
+            graph = rmnode(graph, n2);
+            delete_nodes = [delete_nodes n2];
         end
     end
     plot(graph,'XData',graph.Nodes.Long,'YData',graph.Nodes.Lat)
 end
-        
+
+numnodes(graph)
         
         
 %     % Pour tous les successeurs de n1
