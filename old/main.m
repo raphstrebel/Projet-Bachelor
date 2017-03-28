@@ -343,48 +343,62 @@ load('Graph')
 % plot_google_map
 % ylabel({'$\phi$ [degrees]'},'interpreter','latex','FontSize',15)
 % xlabel({'$\lambda$ [degrees]'},'interpreter','latex','FontSize',15)
-fprintf('number of nodes : %d',numnodes(graph))
 
 eps = 0.001; % à discuter, combien de difference entre long et lat de deux points on accepte
-x = 0;
-delete_nodes = {};
 
+delete_nodes = {}; % On initialize la liste des noeuds à enlever
 
+%fprintf('number of nodes : %d',numnodes(graph))
+
+% Pour tous les noeuds dans graph
 for n1 = 1:numnodes(graph)
     lat1 = graph.Nodes.Long(n1);
     lng1 = graph.Nodes.Lat(n1);
     
-    % for all edges outgoing from i (incoming too?) successors/predecessors
     succ = successors(graph, n1);
     
+    % Pour tous les successeurs de n1
     for j = 1:size(succ)
         
         n2 = succ(j);
         lat2 = graph.Nodes.Long(n2);
         lng2 = graph.Nodes.Lat(n2);
         
-        nextsucc = successors(graph, n2);
-        
-        for k = 1:size(nextsucc)
-            n3 = nextsucc(k);
-            lat3 = graph.Nodes.Long(n3);
-            lng3 = graph.Nodes.Lat(n3);
+        % On vérifie que la différence des longitudes et des latitudes
+        % est < a eps
+        if(abs(lat1 - lat2) < eps && abs(lng1 - lng2) < eps)
             
-            %if(findedge(graph,i,i+1) ~= 0 && findedge(graph,i+1,i+2) ~= 0) 
-            if(abs(lat1 - lat2) < eps && abs(lat2 - lat3) < eps)
-                if(abs(lng1 - lng2) < eps && abs(lng2 - lng3) < eps)
-%                     graph = addedge(graph,i,n2,1);
-%                     graph = rmnode(graph,n2);
-                    if(findedge(graph,n1,n2) ~= 0)
+            % Liste des successeurs de n1
+            nextsucc = successors(graph, n2);
+        
+            % Pour tous les successeurs de n2 
+            for k = 1:size(nextsucc)
+                n3 = nextsucc(k);
+                lat3 = graph.Nodes.Long(n3);
+                lng3 = graph.Nodes.Lat(n3);
+
+                % On vérifie que la différence des longitudes et des latitudes
+                % est < a eps
+                if(abs(lat2 - lat3) < eps && abs(lng2 - lng3) < eps)
+                    % Si il n'existe pas de edge n1 -> n3 on l'ajoute
+                    if(findedge(graph,n1,n3) ~= 0)
                         graph = addedge(graph,n1,n2,1);
                     end
+                    % On ajoute n2 à la liste des noeuds à enlever
                     delete_nodes = [delete_nodes, n2];
                 end
             end
         end
     end
 end
-fprintf('number of nodes : %d',numnodes(graph))
+
+% On enlève les noeuds dans la liste delete_nodes 
+for n = 1:size(delete_nodes)
+    graph = rmnodes(graph, delete_nodes(n));
+    
+end
+
+%fprintf('number of nodes : %d',numnodes(graph))
 
 h1 = plot(graph,'XData',graph.Nodes.Long,'YData',graph.Nodes.Lat,'EdgeColor','k');
 
