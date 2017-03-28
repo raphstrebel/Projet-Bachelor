@@ -357,8 +357,12 @@ numnodes(graph)
 
 % Pour tous les noeuds dans graph
 for n1 = numnodes(graph):-1:1
+    if(n1 == 1)
+        break;
+    end
+    
     while(ismember(n1, delete_nodes) == 1)
-       n1 = n1 + 1; 
+       n1 = n1 - 1;
     end
     
     lat1 = graph.Nodes.Long(n1);
@@ -427,6 +431,15 @@ for n1 = numnodes(graph):-1:1
             % Delete node n2
             %fprintf('DELETE %d', n2)
             graph = rmnode(graph, n2);
+            
+            % Matlab rmnode function reindexes the vertices with index above
+            % n2 (by -1) so we need to adjust delete_nodes
+            
+            for d = 1:size(delete_nodes)
+                if(delete_nodes(d) > n2)
+                    delete_nodes(d) = delete_nodes(d) - 1;
+                end
+            end
             delete_nodes = [delete_nodes n2];
         end
     end
