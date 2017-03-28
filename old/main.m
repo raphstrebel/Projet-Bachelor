@@ -347,22 +347,15 @@ fprintf('number of nodes : %d',numnodes(graph))
 
 eps = 0.001; % à discuter, combien de difference entre long et lat de deux points on accepte
 x = 0;
+delete_nodes = {};
 
-for i = 1:numnodes(graph)-2
-%     d1 = distance(findnode(graph, i).lat, findnode(graph, i).lng, findnode(graph, i+1).lat, findnode(graph, i+1).lng)
-%     d2 = distance(findnode(graph, i+1).lat, findnode(graph, i+1).lng, findnode(graph, i+2).lat, findnode(graph, i+2).lng)
-    
-%     lat1 = graph.Nodes{graph.Edges.EndNodes(i,1),1};
-%     lng1 = graph.Nodes{graph.Edges.EndNodes(i,1),2};
-%     lat2 = graph.Nodes{graph.Edges.EndNodes(i,2),1};
-%     lng2 = graph.Nodes{graph.Edges.EndNodes(i,2),2};
-%     lat3 = graph.Nodes{graph.Edges.EndNodes(i,3),1};
-%     lng3 = graph.Nodes{graph.Edges.EndNodes(i,3),2};
-    lat1 = graph.Nodes.Long(i);
-    lng1 = graph.Nodes.Lat(i);
+
+for n1 = 1:numnodes(graph)
+    lat1 = graph.Nodes.Long(n1);
+    lng1 = graph.Nodes.Lat(n1);
     
     % for all edges outgoing from i (incoming too?) successors/predecessors
-    succ = successors(graph, i);
+    succ = successors(graph, n1);
     
     for j = 1:size(succ)
         
@@ -373,7 +366,6 @@ for i = 1:numnodes(graph)-2
         nextsucc = successors(graph, n2);
         
         for k = 1:size(nextsucc)
-            todelete = 1;
             n3 = nextsucc(k);
             lat3 = graph.Nodes.Long(n3);
             lng3 = graph.Nodes.Lat(n3);
@@ -383,26 +375,18 @@ for i = 1:numnodes(graph)-2
                 if(abs(lng1 - lng2) < eps && abs(lng2 - lng3) < eps)
 %                     graph = addedge(graph,i,n2,1);
 %                     graph = rmnode(graph,n2);
-                    todelete = 0;
+                    if(findedge(graph,n1,n2) ~= 0)
+                        graph = addedge(graph,n1,n2,1);
+                    end
+                    delete_nodes = [delete_nodes, n2];
                 end
             end
-        end
-        
-        if(todelete == 1)
-            if(findedge(graph,i,n2) ~= 0)
-                graph = addedge(graph,i,n2,1);
-            end
-            graph = rmnode(graph,n2); 
         end
     end
 end
 fprintf('number of nodes : %d',numnodes(graph))
 
-h1 = plot(S(1).graph,'XData',S(1).graph.Nodes.Long,'YData',S(1).graph.Nodes.Lat,'EdgeColor','k');
-
-H1 = reshape((S(1).graph.Edges{find(S(1).graph.Edges.Weight<3),1})',1,[]);
-
-highlight(h1,H1,'EdgeColor','r','LineWidth',2.5)
+h1 = plot(graph,'XData',graph.Nodes.Long,'YData',graph.Nodes.Lat,'EdgeColor','k');
 
 % plot_google_map
 ylabel({'$\phi$ [degrees]'},'interpreter','latex','FontSize',15)
