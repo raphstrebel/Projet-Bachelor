@@ -344,6 +344,7 @@ load('Graph')
 % ylabel({'$\phi$ [degrees]'},'interpreter','latex','FontSize',15)
 % xlabel({'$\lambda$ [degrees]'},'interpreter','latex','FontSize',15)
 
+
 eps = 0.001; % à discuter, combien de difference entre long et lat de deux points on accepte
 
 delete_nodes = {}; % On initialize la liste des noeuds à enlever
@@ -351,58 +352,135 @@ delete_nodes = {}; % On initialize la liste des noeuds à enlever
 %fprintf('number of nodes : %d',numnodes(graph))
 
 % Pour tous les noeuds dans graph
-for n1 = 1:numnodes(graph)
+for n1 = numnodes(graph):-1:1
     lat1 = graph.Nodes.Long(n1);
     lng1 = graph.Nodes.Lat(n1);
-    
     succ = successors(graph, n1);
+    succDegreeOne = [];
     
-    % Pour tous les successeurs de n1
+    % Compute in and out degree of every successor of n1
     for j = 1:size(succ)
+        out_d = outdegree(graph,succ(j));
+        in_d = indegree(graph,succ(j));
+        if out_d == 1 && in_d == 1
+            succDegreeOne = [succDegreeOne, succ(j)];
+        end
+    end
+    fprintf('successors of degree 1 of %d\n', n1)
+    succDegreeOne
+    % Keep only nodes of out degree 1
+    for k = 1:size(succDegreeOne)
         
-        n2 = succ(j);
+        n2 = succDegreeOne(k);
+        fprintf('successors of degree 1 of %d\n', n2)
         lat2 = graph.Nodes.Long(n2);
         lng2 = graph.Nodes.Lat(n2);
         
-        % On vérifie que la différence des longitudes et des latitudes
-        % est < a eps
-        if(abs(lat1 - lat2) < eps && abs(lng1 - lng2) < eps)
-            
-            % Liste des successeurs de n1
-            nextsucc = successors(graph, n2);
+        % n3 is the successor of n2
+        n3 = successors(graph, n2);
         
-            % Pour tous les successeurs de n2 
-            for k = 1:size(nextsucc)
-                n3 = nextsucc(k);
-                lat3 = graph.Nodes.Long(n3);
-                lng3 = graph.Nodes.Lat(n3);
-
-                % On vérifie que la différence des longitudes et des latitudes
-                % est < a eps
-                if(abs(lat2 - lat3) < eps && abs(lng2 - lng3) < eps)
-                    % Si il n'existe pas de edge n1 -> n3 on l'ajoute
-                    if(findedge(graph,n1,n3) ~= 0)
-                        graph = addedge(graph,n1,n2,1);
-                    end
-                    % On ajoute n2 à la liste des noeuds à enlever
-                    delete_nodes = [delete_nodes, n2];
-                end
+        fprintf('successors of node 2: %d\n', n3)
+        
+        lat3 = graph.Nodes.Long(n3);
+        lng3 = graph.Nodes.Lat(n3);
+    
+        % Compute function of line passing through n1 and n3
+%         coefficients = polyfit([lat1, lat3], [lng1, lng3], 1);
+%         a = coefficients (1);
+%         b = coefficients (2);
+        
+        % Compute distance between n2 and line (n1,n3)
+        coordNode1 = [lat1; lng1; 0];
+        coordNode3 = [lat3; lng3; 0];
+        coordNode2 = [lat2; lng2; 0];
+        
+        
+        a = coordNode1 - coordNode3;
+        b = coordNode2 - coordNode3;
+        
+        if(norm(a) == 0)
+            dist = 0;
+        else
+            dist = norm(cross(a,b)) / norm(a);
+        end
+        fprintf('distance ')
+        dist
+        
+        % Point 2 is at acceptable distance from line n1-n3
+        if(dist < eps)
+            fprintf('distance is < to eps\n')
+            % If there is no edge n1->n3 we add it
+            if(findedge(graph,n1,n3) ~= 0)
+                fprintf('edge does not exist %d %d %d\n', n1, n2, n3)
+                graph = addedge(graph,n1,n3,1);
             end
+            
+            % Delete node n2
+            fprintf('DELETE %d', n2)
+            graph = rmnode(graph, k);
         end
     end
+    plot(graph,'XData',graph.Nodes.Long,'YData',graph.Nodes.Lat)
 end
+        
+        
+        
+%     % Pour tous les successeurs de n1
+%     for j = 1:size(succ)
+%         j
+%         n2 = succ(j);
+%         lat2 = graph.Nodes.Long(n2);
+%         lng2 = graph.Nodes.Lat(n2);
+%         
+%         % delete n2 = 1
+%         to_delete = 1;
+%         
+%         % On vérifie que la différence des longitudes et des latitudes
+%         % est < a eps
+%         if(abs(lat1 - lat2) < eps || abs(lng1 - lng2) < eps)
+%             
+%             % Liste des successeurs de n1
+%             nextsucc = successors(graph, n2);
+%         
+%             % Pour tous les successeurs de n2 
+%             for k = 1:size(nextsucc)
+%                 k
+%                 n3 = nextsucc(k);
+%                 lat3 = graph.Nodes.Long(n3);
+%                 lng3 = graph.Nodes.Lat(n3);
+% 
+%                 % Si la différence des longitudes et des latitudes
+%                 % est > a eps on ne doit pas delete n2 
+%                 if(abs(lat2 - lat3) > eps && abs(lng2 - lng3) > eps)
+%                     fprintf('difference > eps')
+%                     to_delete = 0;
+%                 end
+%             end
+%             % Tous les successeurs de n2 sont sur un ligne "droite"
+%             if(to_delete == 1)
+%             % Si il n'existe pas de edge n1 -> n3 on l'ajoute
+%                 if(findedge(graph,n1,n3) ~= 0)
+%                     graph = addedge(graph,n1,n3,1);
+%                 end
+%                 % On ajoute n2 à la liste des noeuds à enlever
+%                 delete_nodes = [delete_nodes, n2];
+%             end
+%                 
+%         end
+%     end
+% end
+% 
+% % On enlève les noeuds dans la liste delete_nodes 
+% for n = 1:size(delete_nodes)
+%     fprintf('difference > eps')
+%     graph = rmnode(graph, delete_nodes(n));
+% end
+% 
+% %fprintf('number of nodes : %d',numnodes(graph))
 
-% On enlève les noeuds dans la liste delete_nodes 
-for n = 1:size(delete_nodes)
-    graph = rmnodes(graph, delete_nodes(n));
-    
-end
-
-%fprintf('number of nodes : %d',numnodes(graph))
-
-h1 = plot(graph,'XData',graph.Nodes.Long,'YData',graph.Nodes.Lat,'EdgeColor','k');
-
-% plot_google_map
-ylabel({'$\phi$ [degrees]'},'interpreter','latex','FontSize',15)
-xlabel({'$\lambda$ [degrees]'},'interpreter','latex','FontSize',15)
-hold off
+% h1 = plot(graph,'XData',graph.Nodes.Long,'YData',graph.Nodes.Lat,'EdgeColor','k');
+% 
+% % plot_google_map
+% ylabel({'$\phi$ [degrees]'},'interpreter','latex','FontSize',15)
+% xlabel({'$\lambda$ [degrees]'},'interpreter','latex','FontSize',15)
+% hold off
