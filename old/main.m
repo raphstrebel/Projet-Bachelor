@@ -344,27 +344,39 @@ load('Graph')
 % ylabel({'$\phi$ [degrees]'},'interpreter','latex','FontSize',15)
 % xlabel({'$\lambda$ [degrees]'},'interpreter','latex','FontSize',15)
 
-adj = [0 1 0 0 0;0 0 1 0 0;0 0 0 1 0;0 0 0 0 1;0 0 0 0 0];
-
-graph1 = digraph(adj);
-graph1.Nodes.Long = [2.1345 2.3456 2.5465 2.7654 2.8654]';
-graph1.Nodes.Lat = [48.1345 48.3456 48.5465 48.7654 48.8654]';
-
-plot(graph1,'XData',graph1.Nodes.Long,'YData',graph1.Nodes.Lat)
-
+% adj = [0 1 0 0 0;0 0 1 0 0;0 0 0 1 0;0 0 0 0 1;0 0 0 0 0];
+% 
+% graph1 = digraph(adj);
+% graph1.Nodes.Long = [2.1345 2.3456 2.5465 2.7654 2.8654]';
+% graph1.Nodes.Lat = [48.1345 48.3456 48.5465 48.7654 48.8654]';
+% 
+% plot(graph1,'XData',graph1.Nodes.Long,'YData',graph1.Nodes.Lat)
+% 
+% graph = graph1;
 eps = 0.0001; % à discuter, combien de difference entre long et lat de deux points on accepte
 
 deleted_nodes = []; % On initialize la liste des noeuds enlevés
 
 % Pour tous les noeuds dans graph
-for n1 = numnodes(graph):-1:1
-    if(n1 == 1)
+n1 = numnodes(graph);
+while n1 <= numnodes(graph)
+    
+    changed = 0;
+    if(n1 == 0)
         break;
     end
     
-    while(ismember(n1, deleted_nodes) == 1)
-       n1 = n1 - 1;
+    while(ismember(n1, deleted_nodes) == 1 || isempty(successors(graph, n1)))
+        if(n1 == 1)
+            break;
+        end
+        n1 = n1 - 1;
     end
+    
+    if(n1 == 0)
+        break;
+    end
+    
     
     lat1 = graph.Nodes.Long(n1);
     lng1 = graph.Nodes.Lat(n1);
@@ -420,7 +432,7 @@ for n1 = numnodes(graph):-1:1
             
             % Delete node n2
             graph = rmnode(graph, n2);
-            
+            changed = 1;
             % Matlab rmnode function reindexes the vertices with index above
             % n2 (by -1) so we need to adjust delete_nodes
             for d = 1:size(deleted_nodes)
@@ -431,6 +443,12 @@ for n1 = numnodes(graph):-1:1
             deleted_nodes = [deleted_nodes n2];
         end
     end
+    % If the successor of n1 has been deleted, we must run loop again on n1
+    % to check if n3 must be deleted too
+    if changed
+        n1 = n1 + 1;
+    end
+    n1 = n1 - 1;
 end
 
 plot(graph,'XData',graph.Nodes.Long,'YData',graph.Nodes.Lat)
