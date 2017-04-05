@@ -344,16 +344,17 @@ load('Graph')
 % ylabel({'$\phi$ [degrees]'},'interpreter','latex','FontSize',15)
 % xlabel({'$\lambda$ [degrees]'},'interpreter','latex','FontSize',15)
 
+adj = [0 1 0 0 0;0 0 1 0 0;0 0 0 1 0;0 0 0 0 1;0 0 0 0 0];
+
+graph1 = digraph(adj);
+graph1.Nodes.Long = [2.1345 2.3456 2.5465 2.7654 2.8654]';
+graph1.Nodes.Lat = [48.1345 48.3456 48.5465 48.7654 48.8654]';
+
+plot(graph1,'XData',graph1.Nodes.Long,'YData',graph1.Nodes.Lat)
 
 eps = 0.0001; % à discuter, combien de difference entre long et lat de deux points on accepte
 
-delete_nodes = []; % On initialize la liste des noeuds enlevés
-
-%fprintf('number of nodes : %d',numnodes(graph))
-
-%plot(graph,'XData',graph.Nodes.Long,'YData',graph.Nodes.Lat)
-
-numnodes(graph)
+deleted_nodes = []; % On initialize la liste des noeuds enlevés
 
 % Pour tous les noeuds dans graph
 for n1 = numnodes(graph):-1:1
@@ -361,7 +362,7 @@ for n1 = numnodes(graph):-1:1
         break;
     end
     
-    while(ismember(n1, delete_nodes) == 1)
+    while(ismember(n1, deleted_nodes) == 1)
        n1 = n1 - 1;
     end
     
@@ -378,28 +379,21 @@ for n1 = numnodes(graph):-1:1
             succDegreeOne = [succDegreeOne, succ(j)];
         end
     end
-    %fprintf('successors of degree 1 of %d\n', n1)
-    %succDegreeOne
-    % Keep only nodes of out degree 1
+
+    % Keep only nodes of in and out degree 1
     for k = 1:size(succDegreeOne)
         
+        % n2 is a successor of n1
         n2 = succDegreeOne(k);
-        %fprintf('successors of degree 1 of %d\n', n2)
+
         lat2 = graph.Nodes.Long(n2);
         lng2 = graph.Nodes.Lat(n2);
         
         % n3 is the successor of n2
         n3 = successors(graph, n2);
-        
-        %fprintf('successors of node 2: %d\n', n3)
-        
+                
         lat3 = graph.Nodes.Long(n3);
         lng3 = graph.Nodes.Lat(n3);
-    
-        % Compute function of line passing through n1 and n3
-%         coefficients = polyfit([lat1, lat3], [lng1, lng3], 1);
-%         a = coefficients (1);
-%         b = coefficients (2);
         
         % Compute distance between n2 and line (n1,n3)
         coordNode1 = [lat1; lng1; 0];
@@ -416,12 +410,8 @@ for n1 = numnodes(graph):-1:1
             dist = norm(cross(a,b)) / norm(a);
         end
         
-        %fprintf('distance ')
-        %dist
-        
         % Point 2 is at acceptable distance from line n1-n3
         if(dist < eps)
-            %fprintf('distance is < to eps\n')
             % If there is no edge n1->n3 we add it
             if(findedge(graph,n1,n3) == 0)
                 %fprintf('edge does not exist %d %d %d\n', n1, n2, n3)
@@ -429,24 +419,22 @@ for n1 = numnodes(graph):-1:1
             end
             
             % Delete node n2
-            %fprintf('DELETE %d', n2)
             graph = rmnode(graph, n2);
             
             % Matlab rmnode function reindexes the vertices with index above
             % n2 (by -1) so we need to adjust delete_nodes
-            
-            for d = 1:size(delete_nodes)
-                if(delete_nodes(d) > n2)
-                    delete_nodes(d) = delete_nodes(d) - 1;
+            for d = 1:size(deleted_nodes)
+                if(deleted_nodes(d) > n2)
+                    deleted_nodes(d) = deleted_nodes(d) - 1;
                 end
             end
-            delete_nodes = [delete_nodes n2];
+            deleted_nodes = [deleted_nodes n2];
         end
     end
-    plot(graph,'XData',graph.Nodes.Long,'YData',graph.Nodes.Lat)
 end
 
-numnodes(graph)
+plot(graph,'XData',graph.Nodes.Long,'YData',graph.Nodes.Lat)
+
         
         
 %     % Pour tous les successeurs de n1
